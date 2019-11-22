@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.sjh</groupId>
+    <artifactId>test_jenkins</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.1.6.RELEASE</version>
+    </parent>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+    </dependencies>
+
+
+    <build>
+        <!-- 打包之后jar包的名称 -->
+        <finalName>test_jenkins</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <!-- docker的maven插件，官网：https://github.com/spotify/docker-maven-plugin -->
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.4.13</version>
+                <configuration>
+                    <!-- 上传之后镜像的名称 ip应为为我们虚拟机的ip 对应我们虚拟机中私有仓库的ip 端口号为5000为私有仓库容器的端口号 -->
+                    <imageName>172.20.10.2:5000/${project.artifactId}:${project.version} </imageName>
+                    <baseImage>jdk1.8</baseImage>
+                    <!-- 运行之后执行的命令 -->
+                    <entryPoint>["java", "-jar", "/${project.build.finalName}.jar"] </entryPoint>
+                    <resources>
+                        <resource>
+                            <targetPath>/</targetPath>
+                            <directory>${project.build.directory}</directory>
+                            <include>${project.build.finalName}.jar</include>
+                        </resource>
+                    </resources>
+                    <!-- docker的端口号为2375，ip为我们虚拟机的ip -->
+                    <dockerHost>http://172.20.10.2:2375</dockerHost>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
